@@ -30,8 +30,3 @@ A dynamic, user-facing dashboard designed for filtering and slicing core bike-sh
 * **Time Analysis:** Trip volume by day of the week, monthly trends, and weekday vs. hour heatmaps.
 * **User Analysis:** Demographic breakdowns by user type, gender, and age distribution.
 * **Station Flow:** Geospatial bubble maps and bar charts detailing the most heavily trafficked stations and popular routes.
-
-## Setup & Installation
-1. Clone the repository to your local machine:
-   ```bash
-   git clone [https://github.com/yourusername/ford-gobike-analysis.git](https://github.com/yourusername/ford-gobike-analysis.git)
