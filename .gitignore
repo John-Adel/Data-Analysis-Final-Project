@@ -1,10 +1,9 @@
 # Data & Database Files
-*.csv
 *.zip
 *.tar.gz
 *.db
 *.sqlite3
-fordgobike-tripdata*.csv
+
 
 # Security & Credentials
 .env
