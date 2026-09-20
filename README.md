@@ -1,7 +1,7 @@
 # Ford GoBike Data Analysis Pipeline & Dashboard
 
 ## Project Overview
-This repository contains a comprehensive data analysis and visualization pipeline for the 2019 Ford GoBike sharing system. Developed by a collaborative six-person team for the Digital Egypt Pioneers Initiative (DEPI) Data Science module, the project demonstrates an end-to-end analytical workflow spanning database architecture, rigorous data preprocessing, and dynamic business intelligence visualization. The repository is structured to reflect general data science best practices, ensuring scalability, reproducibility, and clear analytical narratives.
+This repository contains a comprehensive data analysis and visualization pipeline for the 2019 Ford GoBike sharing system. Developed by a collaborative six-person team for the Digital Egypt Pioneers Initiative (DEPI) Machine Learning module, the project demonstrates an end-to-end analytical workflow spanning database architecture, rigorous data preprocessing, and dynamic business intelligence visualization. The repository is structured to reflect general data science best practices, ensuring scalability, reproducibility, and clear analytical narratives.
 
 ## Architecture & Tech Stack
 * **Database:** PostgreSQL
