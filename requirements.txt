@@ -1,0 +1,7 @@
+dash
+plotly
+pandas
+sqlalchemy
+psycopg[binary]
+python-dotenv
+gunicorn
