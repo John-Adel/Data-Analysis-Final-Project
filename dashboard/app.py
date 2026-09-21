@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 from dash import (ALL, Dash, Input, Output, State, callback, clientside_callback, ctx, dcc, html,
                   no_update)
 
-from dashboard.db import AGE_LABELS, DAY_ORDER, REGIONS, df
+from db import AGE_LABELS, DAY_ORDER, REGIONS, df
 
 FONTS = ("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;"
          "12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap")
