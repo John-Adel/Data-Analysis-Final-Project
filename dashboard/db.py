@@ -22,7 +22,6 @@ JOIN fordgobike.dim_station s1 ON f.start_station_id = s1.station_id
 JOIN fordgobike.dim_station s2 ON f.end_station_id   = s2.station_id
 JOIN fordgobike.dim_user    u  ON f.user_id          = u.user_id
 JOIN fordgobike.dim_time    t  ON f.time_id          = t.time_id
-LIMIT 75000
 """
 
 DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
