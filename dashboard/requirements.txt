@@ -1,0 +1,5 @@
+dash>=3.0
+plotly>=5.24
+pandas>=2.0
+numpy
+sqlalchemy  # only needed when GOBIKE_DB_URI is set
