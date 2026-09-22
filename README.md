@@ -30,3 +30,21 @@ A dynamic, user-facing dashboard designed for filtering and slicing core bike-sh
 * **Time Analysis:** Trip volume by day of the week, monthly trends, and weekday vs. hour heatmaps.
 * **User Analysis:** Demographic breakdowns by user type, gender, and age distribution.
 * **Station Flow:** Geospatial bubble maps and bar charts detailing the most heavily trafficked stations and popular routes.
+
+## Database Setup
+
+1. Install PostgreSQL and create an empty database named `fordgobike`.
+2. Copy `.env.example` to `.env` and fill in your own database password.
+3. Install the Python packages:
+```
+   pip install -r requirements.txt
+```
+4. Create the tables and load the data by running:
+```
+   python reset_db.py
+```
+   This creates the schema from `sql/schema.sql` and loads every trip from `data/fordgobike_cleaned.csv`. It takes about a minute.
+5. Start the dashboard:
+```
+   python dashboard/app.py
+```

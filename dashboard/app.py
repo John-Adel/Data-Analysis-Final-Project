@@ -51,7 +51,7 @@ ALL_USER = sorted(df["user_type"].cat.categories)
 ALL_GENDER = [g for g in ["Male", "Female", "Other", "Unknown"] if g in set(df["gender"].cat.categories)]
 D_MIN, D_MAX = df["date"].min().date(), df["date"].max().date()
 N_ALL = len(df)
-MONTH_AVG = df["duration_min"].mean()
+MONTH_AVG = df["duration_min"].median()
 N_STATIONS = pd.concat([df["start_station"].astype(str), df["end_station"].astype(str)]).nunique()
 
 SLIDES = [
@@ -303,7 +303,7 @@ slide_time = slide(1, [html.Div([
     panel("Trips by day and hour", graph("heat"), note="Click a cell to focus that time slot", area="a", d=0),
     panel("Trips by weekday", graph("weekday"), area="b", d=1, accent=CORAL),
     panel("Hourly rhythm by rider type", graph("hourly"), area="c", d=2, accent=VIOLET),
-    panel("Average ride length by hour", graph("durhour"), area="d", d=3, accent=TEAL),
+    panel("Typical ride length by hour", graph("durhour"), area="d", d=3, accent=TEAL),
 ], className="grid")], "time")
 
 slide_riders = slide(2, [html.Div([
@@ -381,6 +381,8 @@ drawer = html.Aside([
     dcc.Checklist(id="f-gender", options=ALL_GENDER, value=ALL_GENDER, className="pills"),
     html.Label("Age group", className="f-label"),
     dcc.Checklist(id="f-age", options=AGE_ORDER, value=AGE_ORDER, className="pills"),
+    html.P("Unknown age is mostly Customers (16% of their trips vs 3% of Subscribers)",
+       className="drawer-note"),
     html.Label("Ride length (minutes)", className="f-label"),
     dcc.RangeSlider(id="f-dur", min=0, max=DUR_MAX, step=1, value=[0, DUR_MAX],
                     marks={i: str(i) for i in range(0, DUR_MAX + 1, 30)},
@@ -617,7 +619,7 @@ def overview_text(*args):
         return ([kpi("Trips", "0", "Nothing matches the current filters", BLUE, hero=True)],
                 [html.P("Widen the filters or clear a selection to see insights.", className="ins-empty")])
     n = len(d)
-    avg = d["duration_min"].mean()
+    avg = d["duration_min"].median()
     delta = avg - MONTH_AVG
     bikes = d["bike_id"].nunique()
     stations = pd.concat([d["start_station"].astype(str), d["end_station"].astype(str)]).nunique()
@@ -627,7 +629,7 @@ def overview_text(*args):
     days_idx = pd.date_range(D_MIN, D_MAX)
     g = d.assign(is_sub=(d["user_type"] == "Subscriber")).groupby("date")
     daily = pd.DataFrame({
-        "trips": g.size(), "dur": g["duration_min"].mean(), "bikes": g["bike_id"].nunique(),
+        "trips": g.size(), "dur": g["duration_min"].median(), "bikes": g["bike_id"].nunique(),
         "st": g["start_station"].nunique(), "sub": g["is_sub"].mean(),
     }).reindex(days_idx)
     wk = d["day_of_week"].value_counts().reindex(DAY_ORDER, fill_value=0)
@@ -635,9 +637,9 @@ def overview_text(*args):
     kpis = [
         kpi("Trips", f"{n:,}", f"{share} of all February trips", BLUE, hero=True, bar=n / N_ALL,
             sp=spark(daily["trips"].fillna(0), "#FFFFFF")),
-        kpi("Average ride", f"{avg:.1f} min",
-            "Same as the month average" if abs(delta) < 0.05 else
-            f"{abs(delta):.1f} min {'longer' if delta > 0 else 'shorter'} than average", TEAL,
+        kpi("Median ride", f"{avg:.1f} min",
+            "Same as typical" if abs(delta) < 0.05 else
+            f"{abs(delta):.1f} min {'longer' if delta > 0 else 'shorter'} than typical", TEAL,
             sp=spark(daily["dur"].ffill().fillna(0), TEAL)),
         kpi("Bikes in use", f"{bikes:,}", f"{n / bikes:.1f} trips per bike", SUN,
             sp=spark(daily["bikes"].fillna(0), SUN)),
@@ -809,6 +811,7 @@ def time_charts(v):
     else:
         f3 = go.Figure()
         hh = d.groupby(["user_type", "hour"], observed=True).size().unstack(fill_value=0)
+        hh = hh.div(hh.sum(axis=1), axis=0)
         for ut in [u for u in ["Subscriber", "Customer"] if u in hh.index]:
             y = hh.loc[ut].reindex(range(24), fill_value=0)
             f3.add_trace(go.Scatter(
@@ -818,23 +821,24 @@ def time_charts(v):
                 fill="tozeroy",
                 fillgradient=dict(type="vertical", colorscale=[[0, rgba(USER_COLORS[ut], 0)],
                                                                 [1, rgba(USER_COLORS[ut], t["fill"] * 2)]]),
-                hovertemplate=ut + ": <b>%{y:,}</b><extra></extra>"))
+                hovertemplate=ut + ": <b>%{y:.1%}</b><extra></extra>"))
         if sel_hour is not None:
             f3.add_vrect(x0=sel_hour - .5, x1=sel_hour + .5, fillcolor=rgba(CORAL, 0.14), line_width=0)
         fin(f3, showlegend=True, hovermode="x unified",
             legend=dict(orientation="h", y=1.02, yanchor="bottom", x=1, xanchor="right", font=dict(color=t["text"])))
         f3.update_xaxes(**HOUR_TICKS, **SPIKE)
+        f3.update_yaxes(tickformat=".0%")
 
     d = v.get("hour", "dayhour")
     if d.empty:
         f4 = empty()
     else:
-        a = d.groupby("hour")["duration_min"].mean().reindex(range(24))
+        a = d.groupby("hour")["duration_min"].median().reindex(range(24))
         f4 = go.Figure(track(list(range(24)), np.nanmax(a.values) * 1.1))
         f4.add_trace(go.Bar(
             x=list(range(24)), y=a.values, customdata=list(range(24)),
             marker=dict(color=paint(list(range(24)), sel_hour, TEAL), cornerradius=4),
-            hovertemplate="%{x}:00<br><b>%{y:.1f} min</b> average<extra></extra>"))
+            hovertemplate="%{x}:00<br><b>%{y:.1f} min</b> median<extra></extra>"))
         fin(f4, bargap=0.2, barmode="overlay", hovermode="x")
         f4.update_yaxes(range=[0, np.nanmax(a.values) * 1.1])
         f4.update_xaxes(tickvals=list(range(0, 24, 6)), ticktext=[hour_label(h) for h in range(0, 24, 6)])

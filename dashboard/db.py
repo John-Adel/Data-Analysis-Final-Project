@@ -33,7 +33,7 @@ JOIN fordgobike.dim_time    t  ON f.time_id          = t.time_id
 """
 
 DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-AGE_LABELS = ["Under 20", "20-29", "30-39", "40-49", "50-59", "60+"]
+AGE_LABELS = ["Young", "Adult", "Senior"]
 REGIONS = ["San Francisco", "East Bay", "San Jose"]
 
 def load_data() -> pd.DataFrame:
@@ -50,7 +50,7 @@ def load_data() -> pd.DataFrame:
     
     df["weekend_flag"] = df["day_of_week"].isin(["Saturday", "Sunday"])
 
-    df["age_group"] = pd.cut(df["age"], bins=[0, 20, 30, 40, 50, 60, 120],
+    df["age_group"] = pd.cut(df["age"], bins=[0, 30, 50, 120],
                              labels=AGE_LABELS, right=False)
     df["age_group"] = df["age_group"].astype(object).fillna("Unknown")
     df["gender"] = df["gender"].fillna("Unknown")

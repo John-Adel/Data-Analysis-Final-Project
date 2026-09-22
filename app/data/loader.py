@@ -36,12 +36,6 @@ def load_dataset(csv_path: Path = DEFAULT_DATASET) -> int:
             # Add temporary auto-increment row ID to staging for 1-to-1 mapping
             cursor.execute("ALTER TABLE staging_trips ADD COLUMN staging_id SERIAL PRIMARY KEY")
 
-            # 2. Seed dummy records
-            if SEED_FILE.exists():
-                cursor.execute(SEED_FILE.read_text(encoding="utf-8"))
-                cursor.execute("SELECT setval('fordgobike.dim_user_user_id_seq', COALESCE((SELECT MAX(user_id) FROM fordgobike.dim_user), 1));")
-                cursor.execute("SELECT setval('fordgobike.dim_time_time_id_seq', COALESCE((SELECT MAX(time_id) FROM fordgobike.dim_time), 1));")
-
             # 3. Insert unique stations
             cursor.execute("""
                 INSERT INTO fordgobike.dim_station (station_id, station_name, station_latitude, station_longitude)
